@@ -1,7 +1,24 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>We are currently in {{controller_name}}</h1>
+	<div>
+		<h4>Films récents</h4>
+		<div class="cards">
+        {% if films is empty %}
+            <p>Aucun film n'a été trouvé</p>
+        {% else %}
+			{% for film in films %}
+				<div class="card">
+					<img src="" alt="">
+                    <div class="card__content">
+                        <h5>{{ film.title }}</h5>
+                        <p>{{ film.description }}</p>
+                        <a>Voir plus</a>
+                    </div>
+				</div>
+			{% endfor %}
+        {% endif %}
+		</div>
+	</div>
 
-    
 {% endblock %}
