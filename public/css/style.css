@@ -1,0 +1,58 @@
+
+@import url('https://fonts.googleapis.com/css?family=Poppins:700|Poppins:400');
+@import url('https://fonts.googleapis.com/css?family=comic+sans+ms');
+
+:root[data-theme="light"] {
+  --text: #000000;
+  --background: #f2f4ec;
+  --primary: #aea6c9;
+  --secondary: #e2d6e6;
+  --accent: #5a6996;
+}
+
+:root[data-theme="dark"] {
+  --text: #ffffff;
+  --background: #11130b;
+  --primary: #3e3659;
+  --secondary: #251929;
+  --accent: #6978a5;
+}
+
+html {
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+}
+
+body {
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: var(--font-weight);
+  line-height: var(--line-height);
+  color: var(--text);
+  background-color: var(--background);
+  transition: var(--transition);
+}
+
+body {
+  font-family: 'Poppins', 'Comic Sans MS', sans-serif;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Poppins', 'Comic Sans MS', sans-serif;
+  font-weight: 700;
+}
+
+html {font-size: 100%;} /* 16px */
+
+h1 {font-size: 4.210rem; /* 67.36px */}
+
+h2 {font-size: 3.158rem; /* 50.56px */}
+
+h3 {font-size: 2.369rem; /* 37.92px */}
+
+h4 {font-size: 1.777rem; /* 28.48px */}
+
+h5 {font-size: 1.333rem; /* 21.28px */}
+
+small {font-size: 0.750rem; /* 12px */}
