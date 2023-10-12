@@ -1,8 +1,13 @@
 <nav>
-	<h3>Vidéotheque</h3>
+	<h3><a href="{{ path('home') }}">Vidéotheque</a></h3>
 	<div class="nav__items">
-    <a>Catégories</a>
+    <div class="categorie">
+      <span>Catégories</span>
+      <ul class="categorie__items">
+        {{ render(controller('App\\Controller\\HomeController::categories')) }}
+      </ul>
+    </div>
     <a>Recherche</a>
-    <a href="{{ path('nouveau film') }}">Nouveau film</a>
+    <a href="{{ path('nouveau_film') }}">Nouveau film</a>
   </div>
 </nav>

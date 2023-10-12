@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+	<div>
+					{% if film.cover %}
+					<img src="data:{{ film.coverType }};base64,{{ film.cover }}" alt="{{ film.title }}" style="width: 200px;">
+					{% else %}
+						<img src="{{ asset('images/default.jpeg') }}" alt="{{ film.title }}" style="width: 200px;">
+					{% endif %}
+		<h4> {{ film.title }} </h4>
+		<p> {{ film.categorie.name|capitalize }} </p>
+		<p> {{ film.description }} </p>
+		<a href="{{ path('film_edit', , {
+													'categorie': film.categorie.name,
+													'movie': film.title|replace({' ': '-'}),
+													'id': film.id,
+												}) }}">Edit</a>
+	</div>
+{% endblock %}
+

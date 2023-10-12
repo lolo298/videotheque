@@ -2,6 +2,10 @@
 
 {% block body %}
 
-{{ form }}
+{{ form(form) }}
+
+{% if success %}
+    <div>{{ success }}</div>
+{% endif %}
 
 {% endblock %}

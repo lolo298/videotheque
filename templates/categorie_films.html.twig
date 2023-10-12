@@ -1,8 +1,8 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-	<div>
-		<h4>Films récents</h4>
+
+<h4>Films de la catégorie {{ categorie.name|capitalize }}</h4>
 		<div class="cards">
         {% if films is empty %}
             <p>Aucun film n'a été trouvé</p>
@@ -16,7 +16,7 @@
 					{% endif %}
                     <div class="card__content">
                         <h5>{{ film.title }}</h5>
-												<p>{{ film.categorie.name|capitalize }}</p>
+												<p>{{ film.categorie.name }}</p>
                         <p>{{ film.description }}</p>
                         <a href="{{ path('film', {
 													'categorie': film.categorie.name,
@@ -28,6 +28,4 @@
 			{% endfor %}
         {% endif %}
 		</div>
-	</div>
 {% endblock %}
-

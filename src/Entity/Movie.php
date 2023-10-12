@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\MovieRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
@@ -19,11 +20,15 @@ class Movie
     #[ORM\Column(length: 255)]
     private ?string $description = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $cover = null;
+    #[ORM\ManyToOne(inversedBy: 'movies')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Categorie $categorie = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $path = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $coverType = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $cover = null;
 
     public function getId(): ?int
     {
@@ -61,6 +66,30 @@ class Movie
         return $this;
     }
 
+    public function getCategorie(): ?categorie
+    {
+        return $this->categorie;
+    }
+
+    public function setCategorie(?categorie $categorie): static
+    {
+        $this->categorie = $categorie;
+
+        return $this;
+    }
+
+    public function getCoverType(): ?string
+    {
+        return $this->coverType;
+    }
+
+    public function setCoverType(?string $coverType): static
+    {
+        $this->coverType = $coverType;
+
+        return $this;
+    }
+
     public function getCover(): ?string
     {
         return $this->cover;
@@ -69,18 +98,6 @@ class Movie
     public function setCover(?string $cover): static
     {
         $this->cover = $cover;
-
-        return $this;
-    }
-
-    public function getPath(): ?string
-    {
-        return $this->path;
-    }
-
-    public function setPath(string $path): static
-    {
-        $this->path = $path;
 
         return $this;
     }
