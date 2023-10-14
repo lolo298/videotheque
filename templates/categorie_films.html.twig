@@ -1,8 +1,12 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-
 <h4>Films de la catégorie {{ categorie.name|capitalize }}</h4>
+<form action="{{ path('categorie_films', {'categorie': categorie.name}) }}" method="get">
+	<label for="limit">Limite</label>
+	<input type="number" name="limit" id="limit" value="{{ limit }}">
+</form>
+
 		<div class="cards">
         {% if films is empty %}
             <p>Aucun film n'a été trouvé</p>

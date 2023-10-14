@@ -4,7 +4,6 @@ namespace App\Form\Type;
 
 use App\Entity\Movie;
 use App\Entity\Categorie;
-use Doctrine\ORM\Mapping\Entity;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 use Symfony\Component\Form\AbstractType;
@@ -18,6 +17,11 @@ use Symfony\Component\Validator\Constraints\File;
 
 class MovieType extends AbstractType {
   public function buildForm(FormBuilderInterface $builder, array $options) {
+    $url = $_SERVER['REQUEST_URI'];
+    $url = explode('/', $url);
+    $mode = array_pop($url);
+    $editing = $mode == 'edit';
+
     $builder
       ->add('title', TextType::class)
       ->add('description', TextareaType::class, [
@@ -30,6 +34,7 @@ class MovieType extends AbstractType {
       ->add('cover', FileType::class, [
         'label' => 'Cover',
         'required' => false,
+        'attr' => ['accept' => 'image/*'],
         'constraints' => [
           new File([
             'maxSize' => '1024k',
@@ -41,7 +46,7 @@ class MovieType extends AbstractType {
         ],
         'data_class' => null,
       ])
-      ->add('save', SubmitType::class, ['label' => 'Create Movie'])
+      ->add('save', SubmitType::class, ['label' => $editing ? 'Update Movie' : 'Create Movie'])
     ;
   }
 

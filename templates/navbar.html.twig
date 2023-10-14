@@ -1,5 +1,6 @@
 <nav>
 	<h3><a href="{{ path('home') }}">Vidéotheque</a></h3>
+  <span>Il y a {{ render(controller('App\\Controller\\MovieController::qte')) }} films dans la vidéothèque</span>
 	<div class="nav__items">
     <div class="categorie">
       <span>Catégories</span>

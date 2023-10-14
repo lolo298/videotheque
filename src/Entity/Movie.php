@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Movie
 {
     #[ORM\Id]
@@ -29,6 +30,9 @@ class Movie
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $cover = null;
+
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    private ?\DateTimeImmutable $date_ajout = null;
 
     public function getId(): ?int
     {
@@ -98,6 +102,19 @@ class Movie
     public function setCover(?string $cover): static
     {
         $this->cover = $cover;
+
+        return $this;
+    }
+
+    public function getDateAjout(): ?\DateTimeImmutable
+    {
+        return $this->date_ajout;
+    }
+
+    #[ORM\PrePersist]
+    public function setDateAjout(): static
+    {
+        $this->date_ajout = new \DateTimeImmutable();
 
         return $this;
     }

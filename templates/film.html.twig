@@ -10,11 +10,16 @@
 		<h4> {{ film.title }} </h4>
 		<p> {{ film.categorie.name|capitalize }} </p>
 		<p> {{ film.description }} </p>
-		<a href="{{ path('film_edit', , {
+		<a href="{{ path('film_edit', {
 													'categorie': film.categorie.name,
 													'movie': film.title|replace({' ': '-'}),
 													'id': film.id,
 												}) }}">Edit</a>
+		<a href="{{ path('film_delete', {
+													'categorie': film.categorie.name,
+													'movie': film.title|replace({' ': '-'}),
+													'id': film.id,
+												}) }}">Delete</a>
 	</div>
 {% endblock %}
 

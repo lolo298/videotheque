@@ -21,13 +21,7 @@ class MovieController extends AbstractController {
     $form = $this->createForm(MovieType::class, $movie);
 
     $form->handleRequest($request);
-    if ($form->isSubmitted()) {
-      if (!$form->isValid()) {
-        return $this->render('movie_creation.html.twig', [
-          'form' => $form,
-          'success' => null,
-        ]);
-      }
+    if ($form->isSubmitted() && $form->isValid()) {
       $movie = $form->getData();
       $movieName = preg_replace('/\s+/', '-', $movie->getTitle());
       $movieId = $movie->getId();
@@ -46,11 +40,13 @@ class MovieController extends AbstractController {
       $entityManager->persist($movie);
       $entityManager->flush();
 
+      $id = $movie->getId();
 
-      //refresh the page with a success message
-      return $this->render('movie_creation.html.twig', [
-        'form' => $form,
-        'success' => 'Movie created successfully',
+
+      return $this->redirectToRoute('film', [
+        'categorie' => $movie->getCategorie()->getName(),
+        'movie' => $movieName,
+        'id' => $id,
       ]);
     }
 
@@ -62,17 +58,19 @@ class MovieController extends AbstractController {
   }
 
   #[Route('/{categorie}', name: 'categorie_films')]
-  public function categorieFilms(EntityManagerInterface $entityManager, $categorie): Response {
-    $categorie = $entityManager->getRepository(Categorie::class)->findOneBy(['name' => $categorie]);
-    $films = $categorie->getMovies();
+  public function categorieFilms(EntityManagerInterface $entityManager, Request $request, $categorie): Response {
+      $limit = $request->query->get('limit') ?? 10;
+      $categorie = $entityManager->getRepository(Categorie::class)->findOneBy(['name' => $categorie]);
+      $films = $categorie->getMovies();
+      $films = array_slice($films->toArray(), 0, $limit);
 
-    return $this->render('categorie_films.html.twig', [
-      'films' => $films,
-      'categorie' => $categorie,
-    ]);
+      return $this->render('categorie_films.html.twig', [
+          'films' => $films,
+          'categorie' => $categorie,
+          'limit' => $limit,
+      ]);
   }
-
-  //allow routes like Back-to-the-future-1-1
+  
   #[Route('/{categorie}/{movie<[\w-]+>}-{id}', name: 'film')]
   public function film(EntityManagerInterface $entityManager, $categorie, $movie, $id): Response {
     $name = preg_replace('/-/', ' ', $movie);
@@ -86,17 +84,68 @@ class MovieController extends AbstractController {
   }
 
   #[Route('/{categorie}/{movie<[\w-]+>}-{id}/edit', name: 'film_edit')]
-  public function edit(EntityManagerInterface $entityManager, $categorie, $movie, $id) {
+  public function edit(EntityManagerInterface $entityManager, Request $request, $categorie, $movie, $id) {
     $name = preg_replace('/-/', ' ', $movie);
     $film = $entityManager->getRepository(Movie::class)->findOneBy(['id' => $id, 'title' => $name]);
 
     if (!$film) throw $this->createNotFoundException('The movie does not exist');
 
     $form = $this->createForm(MovieType::class, $film);
+    $form->handleRequest($request);
 
+    if($form->isSubmitted()) {
+      if(!$form->isValid()) {
+        return $this->render('movie_creation.html.twig', [
+          'form' => $form->createView(),
+          'success' => null,
+        ]);
+      }
+
+      $film = $form->getData();
+      $movieName = $film->getTitle();
+      $movieCategory = $film->getCategorie()->getName();
+
+      $coverPath = $form->get('cover')->getData();
+      if ($coverPath) {
+        $fileType = $coverPath->getMimeType();
+        $cover = file_get_contents($coverPath);
+        $cover = base64_encode($cover);
+
+        $film->setCover($cover);
+        $film->setCoverType($fileType);
+      }
+
+      $entityManager->persist($film);
+      $entityManager->flush();
+
+      return $this->redirectToRoute('film', [
+        'categorie' => $movieCategory,
+        'movie' => preg_replace('/\s+/', '-', $movieName),
+        'id' => $id,
+      ]);
+    }
     return $this->render('movie_creation.html.twig', [
       'form' => $form->createView(),
       'success' => null,
     ]);
+  }
+
+  #[Route('/{categorie}/{movie<[\w-]+>}-{id}/delete', name: 'film_delete')]
+  public function delete(EntityManagerInterface $entityManager, $categorie, $movie, $id, Request $request) {
+    $name = preg_replace('/-/', ' ', $movie);
+    $film = $entityManager->getRepository(Movie::class)->findOneBy(['id' => $id, 'title' => $name]);
+
+    if (!$film) throw $this->createNotFoundException('The movie does not exist');
+
+    $entityManager->remove($film);
+    $entityManager->flush();
+
+
+    return $this->redirectToRoute('home');
+  }
+
+  public function qte(EntityManagerInterface $entityManager){
+    $films_qte = $entityManager->getRepository(Movie::class)->count([]);
+    return new Response($films_qte);
   }
 }
