@@ -26,9 +26,9 @@ class HomeController extends AbstractController {
             ->orderBy('m.id', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
-            ->getQuery();        
+            ->getQuery();
 
-            $paginator = new Paginator($query);
+        $paginator = new Paginator($query);
 
         return $this->render('index.html.twig', [
             'films' => $paginator,
@@ -37,11 +37,41 @@ class HomeController extends AbstractController {
         ]);
     }
 
-    public function categories(EntityManagerInterface $entityManager) {
+    public function categories(EntityManagerInterface $entityManager, $type) {
         return $this->render('categories_list.html.twig', [
-            'categories' => $entityManager->getRepository(Categorie::class)->findAll()
+            'categories' => $entityManager->getRepository(Categorie::class)->findAll(),
+            'type' => $type,
         ]);
     }
 
-    // public
+    #[Route('/search', name: 'search')]
+    public function search(EntityManagerInterface $entityManager, Request $request) {
+        $search = $request->query->get('q');
+        $cat = $request->query->get('t');
+        $query = $entityManager->createQueryBuilder()
+            ->select('m')
+            ->from(Movie::class, 'm')
+            ->innerJoin('m.categorie', 'c');
+        
+            if($search) {
+                $query->andWhere('m.title LIKE :search')
+                ->setParameter('search', "%$search%");
+            }
+
+            if($cat && $cat != 'All') {
+                $query->andWhere('c.name = :cat')
+                ->setParameter('cat', strtolower($cat));
+            }
+
+
+        $films = $query->getQuery()
+            ->getResult();
+
+
+
+        return $this->render('search.html.twig', [
+            'films' => $films,
+            'search' => $search,
+        ]);
+    }
 }

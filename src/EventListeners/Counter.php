@@ -1,5 +1,5 @@
 <?php
-namespace App\EventListener;
+namespace App\EventListeners;
 
 use App\Entity\Compteur;
 use App\Entity\Movie;

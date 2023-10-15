@@ -5,10 +5,10 @@
     <div class="categorie">
       <span>Catégories</span>
       <ul class="categorie__items">
-        {{ render(controller('App\\Controller\\HomeController::categories')) }}
+        {{ render(controller('App\\Controller\\HomeController::categories',{'type': 'li'})) }}
       </ul>
     </div>
-    <a>Recherche</a>
+    <a href="{{ path('search') }}">Recherche</a>
     <a href="{{ path('nouveau_film') }}">Nouveau film</a>
   </div>
 </nav>

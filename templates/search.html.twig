@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+	<div>
+		<form action="" method="get">
+			<input type="text" name="q" value="{{ search }}">
+			<select name="t">
+				<option>All</option>
+        {{ render(controller('App\\Controller\\HomeController::categories',{'type': 'option'})) }}
+			</select>
+		</form>
+		<div class="cards">
+			{% if films is empty %}
+				<p>Aucun film n'a été trouvé</p>
+			{% else %}
+				{% for film in films %}
+					<div class="card">
+						{% if film.cover %}
+							<img src="data:{{ film.coverType }};base64,{{ film.cover }}" alt="{{ film.title }}">
+						{% else %}
+							<img src="{{ asset('images/default.jpeg') }}" alt="{{ film.title }}" style="object-position: center;">
+						{% endif %}
+						<div class="card__content">
+							<h5>{{ film.title|replace({'#dash#': '-'}) }}</h5>
+							<p>{{ film.categorie.name|capitalize }}</p>
+							<p>{{ film.description }}</p>
+							<a href="{{ path('film', { 'categorie': film.categorie.name, 'movie': film.title|replace({' ': '-'})|url_encode, 'id': film.id, }) }}">Voir plus</a>
+						</div>
+					</div>
+				{% endfor %}
+				</div>
+
+
+			{% endif %}
+		</div>
+	</div>
+{% endblock %}

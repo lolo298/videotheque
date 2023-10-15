@@ -1,7 +1,7 @@
 {% for cat in categories %}
-    <li>
+    <{{type}}>
       <a href="{{ path('categorie_films', {
         'categorie': cat.name|lower|replace({' ': '-'}),
       }) }}">{{ cat.name|capitalize }}</a>
-    </li>
+    </{{type}}>
 {% endfor %}

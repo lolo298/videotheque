@@ -128,8 +128,11 @@ class MovieController extends AbstractController {
     $form->handleRequest($request);
 
     if ($form->isSubmitted()) {
-      $movie = $form->getData();
-      $movieName = $movie->getTitle();
+      $film = $form->getData();
+      // echo '---';
+      // var_dump($form->get('coverBlob')->getData());
+      // echo '---';
+      $movieName = $film->getTitle();
       if (!$form->isValid() || strlen($movieName) < 10) {
         return $this->render('movie_creation.html.twig', [
           'form' => $form->createView(),
@@ -138,18 +141,26 @@ class MovieController extends AbstractController {
         ]);
       }
 
-      $film = $form->getData();
+      // echo $film->getCover();
       $movieName = $film->getTitle();
       $movieCategory = $film->getCategorie()->getName();
 
       $coverPath = $form->get('cover')->getData();
+      // var_dump($coverPath);
       if ($coverPath) {
+        // echo 'here';
         $fileType = $coverPath->getMimeType();
         $cover = file_get_contents($coverPath);
         $cover = base64_encode($cover);
 
         $film->setCover($cover);
         $film->setCoverType($fileType);
+      } else {
+        // echo 'there';
+        if($form->get('coverBlob')->getData()) {
+          $film->setCover($form->get('coverBlob')->getData());
+          $film->setCoverType($film->getCoverType());
+        }
       }
 
       $entityManager->persist($film);
@@ -164,6 +175,7 @@ class MovieController extends AbstractController {
     return $this->render('movie_creation.html.twig', [
       'form' => $form->createView(),
       'success' => null,
+      'error' => null,
     ]);
   }
 

@@ -11,6 +11,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
@@ -21,7 +22,6 @@ class MovieType extends AbstractType {
     $url = explode('/', $url);
     $mode = array_pop($url);
     $editing = $mode == 'edit';
-
     $builder
     //Set the min length of the title to 10 characters
       ->add('title', TextType::class, [
@@ -48,6 +48,15 @@ class MovieType extends AbstractType {
           ])
         ],
         'data_class' => null,
+      ])
+      ->add('coverBlob', HiddenType::class, [
+        'attr' => [
+          'value' => $options['data']->getCover(),
+        ],
+        'mapped' => false,
+      ])
+      ->add('coverType', HiddenType::class, [
+        'data' => $options['data']->getCoverType(),
       ])
       ->add('save', SubmitType::class, ['label' => $editing ? 'Update Movie' : 'Create Movie'])
     ;
