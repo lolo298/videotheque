@@ -4,30 +4,50 @@
 	<div>
 		<h4>Films récents</h4>
 		<div class="cards">
-        {% if films is empty %}
-            <p>Aucun film n'a été trouvé</p>
-        {% else %}
-			{% for film in films %}
-				<div class="card">
-				{% if film.cover %}
-					<img src="data:{{ film.coverType }};base64,{{ film.cover }}" alt="{{ film.title }}">
-					{% else %}
-						<img src="{{ asset('images/default.jpeg') }}" alt="{{ film.title }}" style="object-position: center;">
-					{% endif %}
-                    <div class="card__content">
-                        <h5>{{ film.title }}</h5>
-												<p>{{ film.categorie.name|capitalize }}</p>
-                        <p>{{ film.description }}</p>
-                        <a href="{{ path('film', {
-													'categorie': film.categorie.name,
-													'movie': film.title|replace({' ': '-'}),
-													'id': film.id,
-												}) }}">Voir plus</a>
-                    </div>
+			{% if films is empty %}
+				<p>Aucun film n'a été trouvé</p>
+			{% else %}
+				{% for film in films %}
+					<div class="card">
+						{% if film.cover %}
+							<img src="data:{{ film.coverType }};base64,{{ film.cover }}" alt="{{ film.title }}">
+						{% else %}
+							<img src="{{ asset('images/default.jpeg') }}" alt="{{ film.title }}" style="object-position: center;">
+						{% endif %}
+						<div class="card__content">
+							<h5>{{ film.title|replace({'#dash#': '-'}) }}</h5>
+							<p>{{ film.categorie.name|capitalize }}</p>
+							<p>{{ film.description }}</p>
+							<a href="{{ path('film', { 'categorie': film.categorie.name, 'movie': film.title|replace({' ': '-'})|url_encode, 'id': film.id, }) }}">Voir plus</a>
+						</div>
+					</div>
+				{% endfor %}
+
+				<div class="paginate">
+					
+						{% if page > 1 %}
+							<form action="" method="get">
+								<input type="hidden" name="page" value="{{ page - 1 }}">
+								<button type="submit" class="btn btn--primary">Précédent</button>
+							</form >
+						{% endif %}
+
+						<form method="get">
+							<input type="number" name="page" value="{{ page }}"> / {{ total  }}
+						</form>
+
+						{% if page < total %}
+							<form action="" method="get">
+								<input type="hidden" name="page" value="{{ page + 1 }}">
+								<button type="submit" class="btn btn--primary">Suivant</button>
+							</form>
+						{% endif %}
+					
+					</form>
 				</div>
-			{% endfor %}
-        {% endif %}
+
+
+			{% endif %}
 		</div>
 	</div>
 {% endblock %}
-

@@ -7,17 +7,17 @@
 					{% else %}
 						<img src="{{ asset('images/default.jpeg') }}" alt="{{ film.title }}" style="width: 200px;">
 					{% endif %}
-		<h4> {{ film.title }} </h4>
+		<h4> {{ film.title|replace({'#dash#': '-'}) }} </h4>
 		<p> {{ film.categorie.name|capitalize }} </p>
 		<p> {{ film.description }} </p>
 		<a href="{{ path('film_edit', {
 													'categorie': film.categorie.name,
-													'movie': film.title|replace({' ': '-'}),
+													'movie': film.title|replace({' ': '-'})|url_encode,
 													'id': film.id,
 												}) }}">Edit</a>
 		<a href="{{ path('film_delete', {
 													'categorie': film.categorie.name,
-													'movie': film.title|replace({' ': '-'}),
+													'movie': film.title|replace({' ': '-'})|url_encode,
 													'id': film.id,
 												}) }}">Delete</a>
 	</div>

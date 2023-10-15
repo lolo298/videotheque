@@ -4,6 +4,9 @@
 
 {{ form(form) }}
 
+{% if error %}
+    <div>{{ error }}</div>
+{% endif %}
 {% if success %}
     <div>{{ success }}</div>
 {% endif %}

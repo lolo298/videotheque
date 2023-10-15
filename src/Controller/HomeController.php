@@ -5,19 +5,35 @@ namespace App\Controller;
 use App\Entity\Movie;
 use App\Entity\Categorie;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 
+
 class HomeController extends AbstractController {
     #[Route('/', name: 'home')]
-    public function index(EntityManagerInterface $entityManager): Response {
-        $films = $entityManager->getRepository(Movie::class)->findBy([], ['id' => 'DESC'], 6);
+    public function index(EntityManagerInterface $entityManager, Request $request): Response {
 
+        $page = $request->query->get('page', 1);
+        $total = ceil($entityManager->getRepository(Movie::class)->count([]) / 10);
+        $limit = 10;
+
+        $query = $entityManager->createQueryBuilder()
+            ->select('m')
+            ->from(Movie::class, 'm')
+            ->orderBy('m.id', 'DESC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery();        
+
+            $paginator = new Paginator($query);
 
         return $this->render('index.html.twig', [
-            'films' => $films,
+            'films' => $paginator,
+            'total' => $total,
+            'page' => $page,
         ]);
     }
 

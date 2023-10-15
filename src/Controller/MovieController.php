@@ -6,6 +6,7 @@ use App\Entity\Movie;
 use App\Entity\Categorie;
 use App\Form\Type\MovieType;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\ORM\Mapping\Entity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,10 +24,21 @@ class MovieController extends AbstractController {
     $form->handleRequest($request);
     if ($form->isSubmitted() && $form->isValid()) {
       $movie = $form->getData();
+      $movieName = $movie->getTitle();
+      $movie->setTitle(preg_replace('/-+/', '#dash#', $movie->getTitle()));
       $movieName = preg_replace('/\s+/', '-', $movie->getTitle());
+      if (strlen($movieName) < 10) {
+        return $this->render('movie_creation.html.twig', [
+          'form' => $form,
+          'success' => null,
+          'error' => 'The title must be at least 10 characters long',
+        ]);
+      }
       $movieId = $movie->getId();
-      //get the file from the form
+
       $coverPath = $form->get('cover')->getData();
+
+
       if ($coverPath) {
         $fileType = $coverPath->getMimeType();
         $cover = file_get_contents($coverPath);
@@ -54,25 +66,46 @@ class MovieController extends AbstractController {
     return $this->render('movie_creation.html.twig', [
       'form' => $form,
       'success' => null,
+      'error' => null,
     ]);
   }
 
   #[Route('/{categorie}', name: 'categorie_films')]
   public function categorieFilms(EntityManagerInterface $entityManager, Request $request, $categorie): Response {
-      $limit = $request->query->get('limit') ?? 10;
-      $categorie = $entityManager->getRepository(Categorie::class)->findOneBy(['name' => $categorie]);
-      $films = $categorie->getMovies();
-      $films = array_slice($films->toArray(), 0, $limit);
+    $limit = 10;
+    $page = $request->query->get('page', 1);
+    
+    
+    
+    $categorie = $entityManager->getRepository(Categorie::class)->findOneBy(['name' => $categorie]);
 
-      return $this->render('categorie_films.html.twig', [
-          'films' => $films,
-          'categorie' => $categorie,
-          'limit' => $limit,
-      ]);
+    $films = $entityManager->createQueryBuilder()
+      ->select('m')
+      ->from(Movie::class, 'm')
+      ->where('m.categorie = :categorie')
+      ->setParameter('categorie', $categorie)
+      ->orderBy('m.id', 'DESC')
+      ->setFirstResult(($page - 1) * $limit)
+      ->setMaxResults($limit)
+      ->getQuery();
+
+      // $films = array_slice($films->toArray(), ($page - 1) * $limit , $limit);
+      $films = new Paginator($films);
+      $total = ceil(count($films) / 10);
+
+
+
+    return $this->render('categorie_films.html.twig', [
+      'films' => $films,
+      'categorie' => $categorie,
+      'total' => $total,
+      'page' => $page,
+    ]);
   }
-  
-  #[Route('/{categorie}/{movie<[\w-]+>}-{id}', name: 'film')]
+
+  #[Route('/{categorie}/{movie<.+>}-{id}', name: 'film')]
   public function film(EntityManagerInterface $entityManager, $categorie, $movie, $id): Response {
+    $movie = urldecode($movie);
     $name = preg_replace('/-/', ' ', $movie);
     $film = $entityManager->getRepository(Movie::class)->findOneBy(['id' => $id, 'title' => $name]);
 
@@ -83,8 +116,9 @@ class MovieController extends AbstractController {
     ]);
   }
 
-  #[Route('/{categorie}/{movie<[\w-]+>}-{id}/edit', name: 'film_edit')]
+  #[Route('/{categorie}/{movie<.+>}-{id}/edit', name: 'film_edit')]
   public function edit(EntityManagerInterface $entityManager, Request $request, $categorie, $movie, $id) {
+    $movie = urldecode($movie);
     $name = preg_replace('/-/', ' ', $movie);
     $film = $entityManager->getRepository(Movie::class)->findOneBy(['id' => $id, 'title' => $name]);
 
@@ -93,11 +127,14 @@ class MovieController extends AbstractController {
     $form = $this->createForm(MovieType::class, $film);
     $form->handleRequest($request);
 
-    if($form->isSubmitted()) {
-      if(!$form->isValid()) {
+    if ($form->isSubmitted()) {
+      $movie = $form->getData();
+      $movieName = $movie->getTitle();
+      if (!$form->isValid() || strlen($movieName) < 10) {
         return $this->render('movie_creation.html.twig', [
           'form' => $form->createView(),
           'success' => null,
+          'error' => 'The title must be at least 10 characters long',
         ]);
       }
 
@@ -130,8 +167,9 @@ class MovieController extends AbstractController {
     ]);
   }
 
-  #[Route('/{categorie}/{movie<[\w-]+>}-{id}/delete', name: 'film_delete')]
+  #[Route('/{categorie}/{movie<.+>}-{id}/delete', name: 'film_delete')]
   public function delete(EntityManagerInterface $entityManager, $categorie, $movie, $id, Request $request) {
+    $movie = urldecode($movie);
     $name = preg_replace('/-/', ' ', $movie);
     $film = $entityManager->getRepository(Movie::class)->findOneBy(['id' => $id, 'title' => $name]);
 
@@ -144,7 +182,7 @@ class MovieController extends AbstractController {
     return $this->redirectToRoute('home');
   }
 
-  public function qte(EntityManagerInterface $entityManager){
+  public function qte(EntityManagerInterface $entityManager) {
     $films_qte = $entityManager->getRepository(Movie::class)->count([]);
     return new Response($films_qte);
   }

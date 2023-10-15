@@ -23,7 +23,10 @@ class MovieType extends AbstractType {
     $editing = $mode == 'edit';
 
     $builder
-      ->add('title', TextType::class)
+    //Set the min length of the title to 10 characters
+      ->add('title', TextType::class, [
+        'attr' => ['minlength' => 10],
+      ])
       ->add('description', TextareaType::class, [
         'attr' => ['rows' => 10],
       ])
