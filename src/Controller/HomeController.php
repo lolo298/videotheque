@@ -37,10 +37,11 @@ class HomeController extends AbstractController {
         ]);
     }
 
-    public function categories(EntityManagerInterface $entityManager, $type) {
+    public function categories(EntityManagerInterface $entityManager, $type, $value = '') {
         return $this->render('categories_list.html.twig', [
             'categories' => $entityManager->getRepository(Categorie::class)->findAll(),
             'type' => $type,
+            'value' => $value,
         ]);
     }
 
@@ -48,6 +49,7 @@ class HomeController extends AbstractController {
     public function search(EntityManagerInterface $entityManager, Request $request) {
         $search = $request->query->get('q');
         $cat = $request->query->get('t');
+        $date = $request->query->get('d');
         $query = $entityManager->createQueryBuilder()
             ->select('m')
             ->from(Movie::class, 'm')
@@ -63,6 +65,12 @@ class HomeController extends AbstractController {
                 ->setParameter('cat', strtolower($cat));
             }
 
+            if($date) {
+                $query->andWhere('m.date_ajout LIKE :date')
+                ->setParameter('date', "%$date%");
+            }
+
+
 
         $films = $query->getQuery()
             ->getResult();
@@ -72,6 +80,8 @@ class HomeController extends AbstractController {
         return $this->render('search.html.twig', [
             'films' => $films,
             'search' => $search,
+            'cat' => $cat,
+            'date' => $date,
         ]);
     }
 }

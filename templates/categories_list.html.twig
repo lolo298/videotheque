@@ -1,5 +1,5 @@
 {% for cat in categories %}
-    <{{type}}>
+    <{{type}} {{ value == cat.name|capitalize ? 'selected' : ''}}>
       <a href="{{ path('categorie_films', {
         'categorie': cat.name|lower|replace({' ': '-'}),
       }) }}">{{ cat.name|capitalize }}</a>
